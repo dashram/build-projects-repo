@@ -1,0 +1,11 @@
+
+Link Refered:
+http://websystique.com/springmvc/spring-mvc-4-restful-web-services-crud-example-resttemplate/
+
+
+#Get all Users
+GET
+http://127.0.0.1:9999/Spring4MVCCRUDRestService/user/
+Output:
+[{"id":1,"name":"Sam","age":30,"salary":70000.0},{"id":2,"name":"Tom","age":40,"salary":50000.0},{"id":3,"name":"Jerome","age":45,"salary":30000.0},{"id":4,"name":"Silvia","age":50,"salary":40000.0}]
+
