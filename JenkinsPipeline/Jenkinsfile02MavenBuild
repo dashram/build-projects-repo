@@ -1,0 +1,19 @@
+node () {
+	stage ('RestAPI GIT - Checkout') {
+		checkout([$class: 'GitSCM', 
+			branches: [[name: '*/master']], 
+			doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], 
+			userRemoteConfigs: [[credentialsId: 'dashram-jenkins-SSHKey', 
+			url: env.GIT_BUILD_REPO ]]]) 
+	}
+	stage ('RestAPI Maven - Build') {
+ 		// Maven build step
+		withMaven(maven: 'Maven-3.6.3') { 
+			if(isUnix()) {
+				sh "mvn -f RestServiceAPI/pom.xml clean install " 
+			} else { 
+				bat "mvn -f RestServiceAPI/pom.xml clean install " 
+			} 
+		} 
+	}
+}
