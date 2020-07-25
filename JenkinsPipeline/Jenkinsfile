@@ -1,62 +1,62 @@
 pipeline {
-    //agent any
-    agent {
-        node {
-            label 'master'
-        }
-    }
-    
-    options {
-        buildDiscarder logRotator( 
+	//agent any
+	agent {
+		node {
+			label 'master'
+		}
+	}
+
+	options {
+		buildDiscarder logRotator( 
 			daysToKeepStr: '2', 
 			numToKeepStr: '3')
 		ansiColor('xterm')
-		
+
 		timestamps()
 		timeout(time: 1, unit: 'HOURS')
-    }
-    
-    environment { 
-        GLOBAL_VAR = 'Global var value'
-    }
-    
-    parameters {
-        string(name: 'Greeting', defaultValue: 'Hello', description: 'Demo String Param')
 	}
-    
-    stages {
-        stage('initialize') {
-            steps {
-                echo "Job ID: ${env.BUILD_ID} , Job Name: ${env.JOB_NAME}"
-                echo "Custom Param value: ${params.Greeting}"
-            }
-        }
-        
-        stage('Build') {
-            environment { 
-                STAGE_VAR = 'Stage var value available for steps in this stage'
-            }
-            steps {
-                echo 'Building.. '
-                echo "Accessing Gobal Var: ${GLOBAL_VAR} and Local Var: ${STAGE_VAR}"
-            }
-        }
-        stage('Test') {
-            steps {
-                echo 'Testing..'
-            }
-        }
-        stage('Deploy') {
-            steps {
-                echo 'Deploying....'
-            }
-        }
-        
-        stage('Post Build') {
-            steps {
-                echo "Build Status: ${currentBuild.result}"
-            }
-        }        
-       
-    }
+
+	environment { 
+		GLOBAL_VAR = 'Global var value'
+	}
+
+	parameters {
+		string(name: 'Greeting', defaultValue: 'Hello', description: 'Demo String Param')
+	}
+
+	stages {
+		stage('initialize') {
+			steps {
+				echo "Job ID: ${env.BUILD_ID} , Job Name: ${env.JOB_NAME}"
+				echo "Custom Param value: ${params.Greeting}"
+			}
+		}
+
+		stage('Build') {
+			environment { 
+				STAGE_VAR = 'Stage var value available for steps in this stage'
+			}
+			steps {
+				echo 'Building.. '
+				echo "Accessing Gobal Var: ${GLOBAL_VAR} and Local Var: ${STAGE_VAR}"
+			}
+		}
+		stage('Test') {
+			steps {
+				echo 'Testing..'
+			}
+		}
+		stage('Deploy') {
+			steps {
+				echo 'Deploying....'
+			}
+		}
+
+		stage('Post Build') {
+			steps {
+				echo "Build Status: ${currentBuild.result}"
+			}
+		}        
+
+	}
 }

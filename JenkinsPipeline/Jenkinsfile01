@@ -1,0 +1,116 @@
+pipeline {
+	// agent defines where the pipeline will run.
+	agent {
+		label 'master'
+	}
+	
+	//The tools directive allows you to automatically install tools configured in
+	// Jenkins - note that it doesn't work inside Docker containers currently.
+	tools {
+		//jdk "jdk8"
+		maven "Maven-3.6.3"
+	}
+
+	options {
+		buildDiscarder logRotator( 
+			daysToKeepStr: '2', 
+			numToKeepStr: '3')
+		ansiColor('xterm')
+
+		timestamps()
+		timeout(time: 1, unit: 'HOURS')
+	}
+
+	environment { 
+		GLOBAL_VAR = 'Global var value'
+	}
+
+	parameters {
+		string(name: 'Greeting', defaultValue: 'Hello', description: 'Demo String Param')
+	}
+
+	stages {
+		stage('initialize') {
+			steps {
+				echo "Job ID: ${env.BUILD_ID} , Job Name: ${env.JOB_NAME}"
+				echo "Custom Param value: ${params.Greeting}"
+			}
+		}
+
+		stage('Build') {
+			environment { 
+				STAGE_VAR = 'Stage var value available for steps in this stage'
+			}
+			steps {				
+				echo "Accessing Gobal Var: ${GLOBAL_VAR} and Local Var: ${STAGE_VAR}"
+				echo 'Building.. '
+				sh "mvn -version"
+			}
+			
+			// Post can be used both on individual stages and for the entire build.
+			post {
+				success {
+				  echo "Only when we haven't failed running the Build-stage"
+				}
+
+				failure {
+				  echo "Only when we fail running the Build-stage."
+				}
+			}
+		}
+		stage('Test') {
+			steps {
+				echo 'Testing..'
+			}
+		}
+		stage('Deploy') {
+			steps {
+				echo 'Deploying....'
+			}
+		}
+		
+		stage('parallel stage') {
+			steps {
+				// Note that parallel can only be used as the only step for a stage.
+				parallel(one: {
+						  echo "I'm on the first branch!"
+						 },
+						 two: {
+						   echo "I'm on the second branch!"
+						 },
+						 three: {
+						   echo "I'm on the third branch!"
+						   echo "But you probably guessed that already."
+						 })
+			}
+		}
+
+		stage('Post Build') {
+			steps {
+				echo "Build Status: ${currentBuild.result}"
+			}
+		}        
+	}
+	
+	post {
+		// Always runs. And it runs before any of the other post conditions.
+		always {
+		  // Let's wipe out the workspace before we finish!
+		  deleteDir()
+		}
+
+		/*success {
+            mail(from: "bob@example.com", 
+			   to: "steve@example.com", 
+			   subject: "That build passed.",
+			   body: "Nothing to see here")
+		}*/
+
+		failure {
+            mail(from: "bob@example.com", 
+			   to: "steve@example.com", 
+			   subject: "That build failed!", 
+			   body: "Nothing to see here")
+		}
+	}
+}
